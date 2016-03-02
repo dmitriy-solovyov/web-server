@@ -1,5 +1,7 @@
-def application(env, start_response):
-	d = parse_qs(environ['QUERY_STRING'])
-	for key in d:
-    		start_response('200 OK', [('Content-Type','text/plain')])
-    		return [key] # python3
+from cgi import parse_qs, escape
+
+def hello_world(environ, start_response):
+    d = environ['QUERY_STRING']
+    list = d.replace("&","\n")
+    start_response('200 OK', [('Content-Type', 'text/plain')])
+    return list
