@@ -36,7 +36,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'ask.qa'
+    'qa'
 )
 
 MIDDLEWARE_CLASSES = (
@@ -61,7 +61,6 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'ask',
         'USER': 'root'
-        'PASSWORD':'1'
     }
 }
 
