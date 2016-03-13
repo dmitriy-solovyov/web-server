@@ -26,6 +26,9 @@ TEMPLATE_DEBUG = True
 
 ALLOWED_HOSTS = []
 
+TEMPLATE_DIRS = (
+                 '~/web/ask/qa/templates',
+                 )
 
 # Application definition
 
