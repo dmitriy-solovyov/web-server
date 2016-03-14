@@ -9,7 +9,7 @@ def test(request, *args, **kwargs):
     return HttpResponse('OK')
 
 def question_list_all(request):
-	questions = Question.objects.all()
+	questions = Question.objects.order_by('-id')
 	limit = request.GET.get('limit', 10)
 	page = request.GET.get('page', 1)
 	paginator = Paginator(questions, limit)
@@ -39,7 +39,7 @@ def question_with_answers(request, id):
 		question = Question.objects.get(id=id)
 	except Question.DoesNotExist:
 		raise Http404
-	answers = Answer.objects.get(question_id=id)
+	answers = Answer.objects.filter(question_id=id)
 	return render(request, 'question.html' , {
 		'question' : question,
 		'answers' : answers,
