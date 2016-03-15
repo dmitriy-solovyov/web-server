@@ -4,6 +4,9 @@ from django.http import HttpResponse
 from qa.models import Question
 from qa.models import Answer
 from django.http import Http404
+from forms import AnswerForm, AskForm
+from django.http.response import HttpResponseRedirect
+from django.core.urlresolvers import reverse
 
 def test(request, *args, **kwargs):
     return HttpResponse('OK')
@@ -35,6 +38,7 @@ def popular_questions(request):
 	})
 
 def question_with_answers(request, id):
+	form = AnswerForm()
 	try:
 		question = Question.objects.get(id=id)
 	except Question.DoesNotExist:
@@ -44,3 +48,28 @@ def question_with_answers(request, id):
 		'question' : question,
 		'answers' : answers,
 	}) 
+
+def question_add(request):
+	if request.method == "POST":
+		form = AskForm(request.POST)
+		if form.is_valid():
+			question = form.save()
+			url = reverse('question-with-answers', args=(question.id,))
+			return HttpResponseRedirect(url)
+			
+	else:
+		form = AskForm()
+	return render(request, 'question_add.html', {
+		'form' : form,
+	}) 
+
+def answer_add(request):
+	 if request.method == "POST":
+		 form = AnswerForm(request.POST)
+		 if form.is_valid():
+			 answer = form.save()
+			 url = reverse('question-with-answers', args=(answer.question_id,))
+			 return HttpResponseRedirect(url)
+	 else:
+		form = AnswerForm()
+	 return HttpResponseRedirect('/')

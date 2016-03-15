@@ -6,29 +6,31 @@ class AskForm(forms.Form):
 	title = forms.CharField()
 	text = forms.CharField(widget=forms.Textarea)
 
-	def __init__(self, *args, **kwargs):
- 		super(AskForm, self).__init__(*args, **kwargs)
-
 	def clean(self):
-		tmp = 1
+		self.cleaned_data = super(AskForm, self).clean()
+		return self.cleaned_data
 
 	def save(self):
-		self.cleaned_data['author'] = '1'
-		return Question.object.create(**self.cleaned_data)
+		self.cleaned_data['author_id'] = '1'
+	        self.cleaned_data['rating'] = '1'
+		return Question.objects.create(**self.cleaned_data)
 
 
 class AnswerForm(forms.Form):
 	text = forms.CharField(widget=forms.Textarea)
-	question = forms.IntegerField(10)
-
-	def __init__(self, *args, **kwargs):
- 		super(AnswerForm, self).__init__(*args, **kwargs)
+#	question = forms.IntegerField(widget=forms.HiddenInput)
+	question = forms.IntegerField()
 
 	def clean(self):
-		tmp = 1
+		self.cleaned_data = super(AnswerForm, self).clean()
+                return self.cleaned_data
 
 	def save(self):
-		self.cleaned_data['author'] = '1'
-		return Answer.object.create(**self.cleaned_data)
+		question = Question.objects.get(id=self.cleaned_data['question'])
+	#	self.cleaned_data['question_id'] = question.id
+		self.cleaned_data['question']= question
+		self.cleaned_data['author_id'] = '1'
+		return Answer.objects.create(**self.cleaned_data)
+
 
 
