@@ -4,9 +4,10 @@ from django.http import HttpResponse
 from qa.models import Question
 from qa.models import Answer
 from django.http import Http404
-from forms import AnswerForm, AskForm
+from forms import AnswerForm, AskForm, SignUpForm, LoginForm
 from django.http.response import HttpResponseRedirect
 from django.core.urlresolvers import reverse
+from django.contrib.auth import authenticate, login
 
 def test(request, *args, **kwargs):
     return HttpResponse('OK')
@@ -38,7 +39,7 @@ def popular_questions(request):
 	})
 
 def question_with_answers(request, id):
-	form = AnswerForm()
+	form = AnswerForm(initial={'question': id})
 	try:
 		question = Question.objects.get(id=id)
 	except Question.DoesNotExist:
@@ -50,26 +51,81 @@ def question_with_answers(request, id):
 	}) 
 
 def question_add(request):
-	if request.method == "POST":
-		form = AskForm(request.POST)
-		if form.is_valid():
-			question = form.save()
-			url = reverse('question-with-answers', args=(question.id,))
-			return HttpResponseRedirect(url)
-			
-	else:
-		form = AskForm()
-	return render(request, 'question_add.html', {
-		'form' : form,
-	}) 
+        if request.method == "POST":
+                form = AskForm(request.POST)
+                if form.is_valid():
+                        question = form.save(commit=False)
+                        question.author_id = request.user.id
+                        question.rating = '1'
+                        question.save()
+                        url = reverse('question-with-answers', args=(question.id,))
+                        return HttpResponseRedirect(url)
+
+        else:
+                form = AskForm()
+        return render(request, 'question_add.html', {
+                'form' : form,
+        })
 
 def answer_add(request):
-	 if request.method == "POST":
-		 form = AnswerForm(request.POST)
-		 if form.is_valid():
-			 answer = form.save()
-			 url = reverse('question-with-answers', args=(answer.question_id,))
-			 return HttpResponseRedirect(url)
-	 else:
-		form = AnswerForm()
-	 return HttpResponseRedirect('/')
+         if request.method == "POST":
+                 form = AnswerForm(request.POST)
+                 if form.is_valid():
+                         answer = form.save(request)
+                         url = reverse('question-with-answers', args=(answer.question.id,))
+                         return HttpResponseRedirect(url)
+         else:
+                form = AnswerForm()
+         return HttpResponseRedirect('/')
+
+
+def signup(request):
+	if request.method == "POST":
+		form = SignUpForm(request.POST)
+		username = request.POST.get('username')
+		email = request.POST.get('email')
+        password = request.POST.get('password')
+        if form.is_valid():
+        	new_user = form.save()
+        	user = authenticate(username=username, password=password)
+        	if user is not None:
+        		login(request, user)
+            return HttpResponseRedirect('/')
+    else:
+    	form = SignUpForm()
+
+    return render(request, 'registration.html', {
+		'form' : form,
+	})  
+
+def user_login(request):
+	if request.method == "POST":
+		form = LoginForm(request.POST)
+		username = request.POST.get('username')
+        password = request.POST.get('password')
+        if form.is_valid():
+        	user = authenticate(username=username, password=password)
+        	if user is not None:
+        		login(request, user)
+            	return HttpResponseRedirect('/')
+    else:
+    	form = LoginForm()
+
+    return render(request, 'login.html', {
+		'form' : form,
+	})  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

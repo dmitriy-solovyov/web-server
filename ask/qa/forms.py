@@ -1,36 +1,48 @@
 from django import forms
 from qa.models import Question
 from qa.models import Answer
+from django.contrib.auth.models import User
+from django.forms import ModelForm
 
-class AskForm(forms.Form):
-	title = forms.CharField()
-	text = forms.CharField(widget=forms.Textarea)
-
-	def clean(self):
-		self.cleaned_data = super(AskForm, self).clean()
-		return self.cleaned_data
-
-	def save(self):
-		self.cleaned_data['author_id'] = '1'
-	        self.cleaned_data['rating'] = '1'
-		return Question.objects.create(**self.cleaned_data)
+class AskForm(ModelForm):
+        class Meta:
+                model = Question
+                exclude = ['added_at','rating','author','likes']
 
 
 class AnswerForm(forms.Form):
-	text = forms.CharField(widget=forms.Textarea)
-#	question = forms.IntegerField(widget=forms.HiddenInput)
-	question = forms.IntegerField()
+        text = forms.CharField(widget=forms.Textarea)
+#       question = forms.IntegerField(widget=forms.HiddenInput)
+        question = forms.IntegerField()
 
-	def clean(self):
-		self.cleaned_data = super(AnswerForm, self).clean()
+        def clean(self):
+                self.cleaned_data = super(AnswerForm, self).clean()
                 return self.cleaned_data
 
+        def save(self,request):
+                question = Question.objects.get(id=self.cleaned_data['question'])
+        #       self.cleaned_data['question_id'] = question.id
+                self.cleaned_data['question']= question
+                self.cleaned_data['author_id'] = request.user.id
+                return Answer.objects.create(**self.cleaned_data)
+
+class SignUpForm(forms.Form):
+	username = forms.CharField()
+	email = forms.EmailField()
+	password = forms.CharField(widget=forms.PasswordInput())
+
+	def clean(self):
+		self.cleaned_data = super(SignUpForm, self).clean()
+		return self.cleaned_data
+
 	def save(self):
-		question = Question.objects.get(id=self.cleaned_data['question'])
-	#	self.cleaned_data['question_id'] = question.id
-		self.cleaned_data['question']= question
-		self.cleaned_data['author_id'] = '1'
-		return Answer.objects.create(**self.cleaned_data)
+		return User.objects.create_user(**self.cleaned_data)
 
+class LoginForm(forms.Form):
+	username = forms.CharField()
+	password = forms.CharField(widget=forms.PasswordInput())
 
+	def clean(self):
+		self.cleaned_data = super(LoginForm, self).clean()
+		return self.cleaned_data
 
