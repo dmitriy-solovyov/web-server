@@ -85,13 +85,13 @@ def signup(request):
 		form = SignUpForm(request.POST)
 		username = request.POST.get('username')
 		email = request.POST.get('email')
-        	password = request.POST.get('password')
-        	if form.is_valid():
-        		new_user = form.save()
-        		user = authenticate(username=username, password=password)
-        		if user is not None:
-        			login(request, user)
-            		return HttpResponseRedirect('/')
+        password = request.POST.get('password')
+        if form.is_valid():
+        	new_user = form.save()
+        	user = authenticate(username=username, password=password)
+        	if user is not None:
+        		login(request, user)
+            	return HttpResponseRedirect('/')
     else:
     	form = SignUpForm()
 
@@ -103,12 +103,12 @@ def user_login(request):
 	if request.method == "POST":
 		form = LoginForm(request.POST)
 		username = request.POST.get('username')
-        	password = request.POST.get('password')
-        	if form.is_valid():
-        		user = authenticate(username=username, password=password)
-        		if user is not None:
-        			login(request, user)
-            			return HttpResponseRedirect('/')
+        password = request.POST.get('password')
+        if form.is_valid():
+        	user = authenticate(username=username, password=password)
+        	if user is not None:
+        		login(request, user)
+            		return HttpResponseRedirect('/')
     else:
     	form = LoginForm()
 
